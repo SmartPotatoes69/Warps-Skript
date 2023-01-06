@@ -10,4 +10,5 @@ You may use the skript but you should credit @SmartPotatoes69 or/and link back t
 /setwarp - creates/changes location of a existing warp                                              
 /deletewarp - Deletes a existing warp                                              
 /warp - warps you to the warp if you have the correct permission warps.use.<warpname>                                              
-/warp - without any args open warpgui
+/warp - without any args open warpgui                                              
+Warptimer in options you can true/false and chnage the time of warptimer
