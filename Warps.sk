@@ -1,1 +1,180 @@
+#You may use the skript but you should credit SmartPotatoes or/and link back to the original github repository
+#Requirements: Skript, SkBee
+#Version: 0.0.1
 
+options:
+    warptimer: true #Player need to stand still for {@warptime} before getting teleported
+    warptime: 3 #in seconds
+
+
+on unload:
+    delete {-warpingTimer::*}
+
+on quit:
+    delete {-warpingTimer::%player%}
+
+command /setwarp [<text>]:
+    trigger:
+        if sender is console:
+            send "&c&l(!) &cOnly players can execute this command!"
+            stop
+        if sender doesn't have permission "warps.set" or "warps.*":
+            send "&c&l(!) &cYou can't execute this command!"
+            stop
+        if arg-1 is not set:
+            send "&c&l(!) &cCorrect usage: /setwarp <warp>"
+            stop
+        set {_letters::*} to arg-1 split at ""
+        loop {_letters::*}:
+            loop-value isn't "a" or "b" or "c" or "d" or "e" or "f" or "g" or "h" or "i" or "j" or "k" or "l" or "n" or "m" or "o" or "p" or "q" or "r" or "s" or "t" or "u" or "v" or "w" or "x" or "y" or "z" or "_" or "1" or "2" or "3" or "4" or "5" or "6" or "7" or "8" or "9" or "0" or " " or ""
+            send "<##96e01d>&lWARPS&7・You cannot use illegal characters!"
+            stop
+        if {warp::%arg-1%} is set:
+            set {warp::%arg-1%} to location of player
+            send "<##96e01d>&lWARPS&7・&7Changed the location of warp &a%arg-1%"
+            stop
+        set {warp::%arg-1%} to location of player
+        send "<##96e01d>&lWARPS&7・Created a new warp at you're current location &a%arg-1%"
+
+
+command /deletewarp [<text>]:
+    aliases: delwarp
+    trigger:
+        if sender doesn't have permission "warps.delete" or "warps.*":
+            send "&c&l(!) &cYou can't execute this command!"
+            stop
+        if arg-1 is not set:
+            send "&c&l(!) &cCorrect usage: /setwarp <warp>"
+            stop
+        set {_letters::*} to arg-1 split at ""
+        loop {_letters::*}:
+            loop-value isn't "a" or "b" or "c" or "d" or "e" or "f" or "g" or "h" or "i" or "j" or "k" or "l" or "n" or "m" or "o" or "p" or "q" or "r" or "s" or "t" or "u" or "v" or "w" or "x" or "y" or "z" or "_" or "1" or "2" or "3" or "4" or "5" or "6" or "7" or "8" or "9" or "0" or " " or ""
+            send "<##96e01d>&lWARPS&7・You cannot use illegal characters!"
+            stop
+        if {warp::%arg-1%} is not set:
+            send "<##96e01d>&lWARPS&7・&7There is no warp with this name"
+            stop
+        delete {warp::%arg-1%}
+        send "<##96e01d>&lWARPS&7・&7Deleted warp named &c%arg-1%"
+
+
+command /warp [<text>]:
+    aliases: warps
+    trigger:
+        if sender is console:
+            send "&c&l(!) &cOnly players can execute this command!"
+            stop
+        if arg-1 is not set:
+            set (metadata value "WarpGui" of player) to chest inventory with 6 rows named "<##96e01d>&lWARPS GUI"
+            set {_slot} to 0
+            loop {warp::*}:
+                set {_warp} to loop-index
+                if player doesn't have permission "warps.use.*" or "warps.use.%{_warp}%" or "warps.*":
+                    continue loop
+                else:
+                    set slot {_slot} of (metadata value "WarpGui" of player) to ender pearl named "&a%{_warp}%" with lore "" and "&8 &7Click to warp!"
+                add 1 to {_slot}
+            open (metadata value "WarpGui" of player) to player
+            stop
+        if sender doesn't have permission "warps.use.*" or "warps.use.%arg-1%" or "warps.*":
+            send "&c&l(!) &cYou can't teleport to this warp!"
+            stop
+        set {_letters::*} to arg-1 split at ""
+        loop {_letters::*}:
+            loop-value isn't "a" or "b" or "c" or "d" or "e" or "f" or "g" or "h" or "i" or "j" or "k" or "l" or "n" or "m" or "o" or "p" or "q" or "r" or "s" or "t" or "u" or "v" or "w" or "x" or "y" or "z" or "_" or "1" or "2" or "3" or "4" or "5" or "6" or "7" or "8" or "9" or "0" or " " or ""
+            send "<##96e01d>&lWARPS&7・You cannot use illegal characters!"
+            stop
+        if {warp::%arg-1%} is not set:
+            send "<##96e01d>&lWARPS&7・There is no warp with this name"
+            stop
+        if {@warptimer} is true:
+            if player has permission "warps.instawarp" or "warps.*":
+                teleport player to {warp::%arg-1%}
+                send "<##96e01d>&lWARPS&7・&7You have been teleported to warp &a%arg-1%"
+                stop
+            set {-warpingTimer::%player%} to location of block below player
+            set {_n} to {@warptime}
+            loop {@warptime} times:
+                if location of block below player is not {-warpingTimer::%player%}:
+                    delete {-warpingTimer::%player%}
+                    send action bar "&x&9&6&e&0&1&d&lWARPS&7・Teleport to &c%arg-1% &7cancelled" to player
+                    stop
+                send action bar "&x&9&6&e&0&1&d&lWARPS&7・Teleporting to &a%arg-1% &7in &a%{_n}% seconds" to player
+                remove 1 from {_n}
+                wait 1 second
+            if location of block below player is not {-warpingTimer::%player%}:
+                delete {-warpingTimer::%player%}
+                send action bar "&x&9&6&e&0&1&d&lWARPS&7・Teleport to &c%arg-1% &7cancelled" to player
+                stop
+            send action bar "" to player
+            delete {-warpingTimer::%player%}
+        teleport player to {warp::%arg-1%}
+        send "<##96e01d>&lWARPS&7・&7You have been teleported to warp &a%arg-1%"
+
+
+on inventory click:
+    event-inventory is (metadata value "WarpGui" of player)
+    cancel event
+    set {_slot} to -1
+    loop {warp::*}:
+        add 1 to {_slot}
+        {_slot} is event-slot
+        set {_warp} to loop-index
+        if player doesn't have permission "warps.use.*" or "warps.use.%{_warp}%" or "warps.*":
+            remove 1 from {_slot}
+            continue loop
+        else:
+            close player's inventory
+            if {@warptimer} is true:
+                if player has permission "warps.instawarp" or "warps.*":
+                    teleport player to {warp::%{_warp}%}
+                    send "<##96e01d>&lWARPS&7・&7You have been teleported to warp &a%{_warp}%"
+                    stop
+                set {-warpingTimer::%player%} to location of block below player
+                set {_n} to {@warptime}
+                loop {@warptime} times:
+                    if location of block below player is not {-warpingTimer::%player%}:
+                        delete {-warpingTimer::%player%}
+                        send action bar "&x&9&6&e&0&1&d&lWARPS&7・Teleport to &c%{_warp}% &7cancelled" to player
+                        stop
+                    send action bar "&x&9&6&e&0&1&d&lWARPS&7・Teleporting to &a%{_warp}% &7in &a%{_n}% seconds" to player
+                    remove 1 from {_n}
+                    wait 1 second
+                if location of block below player is not {-warpingTimer::%player%}:
+                    delete {-warpingTimer::%player%}
+                    send action bar "&x&9&6&e&0&1&d&lWARPS&7・Teleport to &c%{_warp}% &7cancelled" to player
+                    stop
+                send action bar "" to player
+                delete {-warpingTimer::%player%}
+            teleport player to {warp::%{_warp}%}
+            send "<##96e01d>&lWARPS&7・&7You have been teleported to warp &a%{_warp}%"
+            stop
+        
+
+
+on tab complete of "/warp" or "/warps" or "/delwarp" or "/deletewarp":
+    clear tab completions for position 1
+    loop {warp::*}:
+        if player doesn't have permission "warps.use.*" or "warps.use.%loop-index%" or "warps.*":
+            continue loop
+        add loop-index to tab completions for position 1
+    
+#WarpTimer Checks
+
+on command:
+    {-warpingTimer::%player%} is set
+    delete {-warpingTimer::%player%}
+
+on break:
+    {-warpingTimer::%player%} is set
+    delete {-warpingTimer::%player%}
+
+on place:
+    {-warpingTimer::%player%} is set
+    delete {-warpingTimer::%player%}
+
+on damage:
+    if {-warpingTimer::%victim%} is set:
+        delete {-warpingTimer::%victim%}
+    if {-warpingTimer::%attacker%} is set:
+        delete {-warpingTimer::%attacker%}
